@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            background-color: aliceblue;
+            font-family: Arial, Helvetica, sans-serif;
+            justify-content: center;
+            padding-top: 60px;
+            margin:0;
+        }
+        .card{
+            background-color: white;
+            width: 320px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin: 60px auto;
+        }
+        h1{
+            color: darkslategrey;
+            padding-bottom: 5px;
+        }
+        p{
+            color: darkgreen;
+            margin-top: 0%;
+        }
+        ul{
+            text-align: left;
+             background-color: #f8f9fa;
+            padding:15px 30px;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #023e8a;
+        }
+        .profile {
+            width: 120px;          
+            height: 120px;         
+            object-fit: cover;     
+            border-radius: 50%;    
+            border: 3px solid #0077b6;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box; 
+            font-family: inherit;
+        }
+
+        form button {
+            width: 100%; 
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>R Hemashree</h1>
+        <p>CS Student &amp; Tech Enthusiast</p>
+        <img src="passport.jpeg"alt="profile"class="profile">
+        <h2>My Favorite Topics</h2>
+        <ul>
+            <li>Web Development</li>
+            <li>Python &amp; AI</li>
+            <li>Problem Solving</li>
+        </ul>
+        <h2>Quick links</h2>
+        <a href="https://github.com/hemashree79" target="_blank">My GitHub</a>
+        <a href="https://www.linkedin.com/in/r-hemashree-51493b2a4/"target="_blank">My LinkedIn</a>
+
+        <br></br>
+        <button onclick="alert('Hello! Thanks for visiting My profile! 👋')">Say Hello!</button>
+        <h2>Send a Message</h2>
+        <form onsubmit="alert('Message sent! Thank you 😊'); return false;">
+            <input type="text" placeholder="Your Name" required>
+            <input type="email" placeholder="Your Email" required>
+            <textarea rows="3" placeholder="Write a message..." required></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+        </div>
+</body>
+</html>
