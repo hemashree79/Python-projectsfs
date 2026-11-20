@@ -1,0 +1,90 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AURELIA | Curated Store{% endblock %}</title>
+  <script>
+    (function () {
+      const saved = localStorage.getItem("aurelia-theme") || "dark";
+      document.documentElement.setAttribute("data-theme", saved);
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'shop/styles.css' %}?v=4">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="{% url 'shop:product_list' %}" class="brand-logo">AURELIA</a>
+    <div class="nav-links">
+      <a href="{% url 'shop:drop_pools' %}" class="nav-pill-gold">⚡ Price Drops</a>
+      <a href="{% url 'shop:bundle_builder' %}">Kit Builder (15% Off)</a>
+      <a href="{% url 'shop:compare_view' %}">
+        Compare
+        {% if request.session.compare_ids %}
+          <span class="badge">{{ request.session.compare_ids|length }}</span>
+        {% endif %}
+      </a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'shop:wishlist_view' %}">Wishlist</a>
+        <a href="{% url 'shop:order_history' %}">My Orders</a>
+        {% if user.is_staff %}
+          <a href="{% url 'shop:owner_dashboard' %}" style="color: var(--gold-light); font-weight: 700;">Dashboard</a>
+        {% endif %}
+        <form method="post" action="{% url 'shop:logout' %}" style="margin: 0;">
+          {% csrf_token %}
+          <button type="submit" class="btn-secondary" style="padding: 0.38rem 0.75rem;">Logout ({{ user.username }})</button>
+        </form>
+      {% else %}
+        <a href="{% url 'shop:login' %}">Login</a>
+        <a href="{% url 'shop:register' %}">Register</a>
+      {% endif %}
+      <a href="{% url 'shop:cart_detail' %}">
+        Cart <span class="badge">{{ cart_count }}</span>
+      </a>
+      <button type="button" id="theme-toggle" class="btn-secondary" style="padding: 0.38rem 0.75rem;" aria-label="Toggle theme">
+        ☀️ Light
+      </button>
+    </div>
+  </nav>
+
+  <main class="container">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer style="border-top: 1px solid var(--border-subtle); padding: 2rem 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">
+    <div style="max-width: 1220px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <span class="brand-logo" style="font-size: 1.15rem;">AURELIA</span>
+      <span>Curated Precision Gear • Group-Buy Drop Pools • Custom 15% Kits</span>
+      <span>Built with Django</span>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const btn = document.getElementById("theme-toggle");
+      const root = document.documentElement;
+
+      function syncButton(theme) {
+        btn.textContent = theme === "light" ? "🌙 Dark" : "☀️ Light";
+      }
+
+      syncButton(root.getAttribute("data-theme") || "dark");
+
+      btn.addEventListener("click", function () {
+        const current = root.getAttribute("data-theme") || "dark";
+        const next = current === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        localStorage.setItem("aurelia-theme", next);
+        syncButton(next);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+﻿{% extends "shop/base.html" %}
+
+{% block title %}Kit Builder (15% Off) | AURELIA{% endblock %}
+
+{% block content %}
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+    <div>
+      <h1 style="margin: 0;">Custom Kit Builder</h1>
+      <p style="margin: 0.25rem 0 0; color: var(--text-secondary);">Pick 1 item from at least <strong>3 categories</strong> to unlock an automatic <strong>15% Bundle Discount</strong>.</p>
+    </div>
+    <a href="{% url 'shop:product_list' %}"><button type="button" class="btn-secondary">← Back to Catalog</button></a>
+  </div>
+
+  <form method="post" id="bundle-form">
+    {% csrf_token %}
+    <div class="card" style="position: sticky; top: 4.6rem; z-index: 20; border: 1px solid var(--gold-primary); margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div id="bundle-status" style="font-weight: 700; color: var(--gold-light);">Selected: 0 / 3 categories needed for 15% OFF</div>
+        <div style="font-size: 0.95rem; margin-top: 0.25rem; color: var(--text-secondary);">
+          Subtotal: <strong style="color: var(--text-primary);">₹<span id="bundle-subtotal">0.00</span></strong>
+          <span id="bundle-discount-wrap" style="display: none; color: #6ee7b7; margin-left: 0.75rem;">
+            Bundle Savings (15%): <strong>- ₹<span id="bundle-discount">0.00</span></strong>
+          </span>
+          <span style="margin-left: 0.75rem;">
+            Final Total: <strong style="font-size: 1.15rem; color: var(--gold-light);">₹<span id="bundle-total">0.00</span></strong>
+          </span>
+        </div>
+      </div>
+      <button type="submit" id="bundle-submit" disabled style="opacity: 0.45; cursor: not-allowed;">Add Bundle to Cart (15% Off)</button>
+    </div>
+
+    {% for cat in categories %}
+      {% if cat.available_products %}
+        <section style="margin-bottom: 2.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+            <h2 style="margin: 0;">Step {{ forloop.counter }}: {{ cat.name }}</h2>
+            <label style="font-size: 0.88rem; color: var(--text-secondary); cursor: pointer;">
+              <input type="radio" name="cat_{{ cat.id }}" value="" data-price="0" checked class="bundle-radio"> Skip category
+            </label>
+          </div>
+          <div class="product-grid">
+            {% for product in cat.available_products %}
+              <label class="card" style="cursor: pointer;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; color: var(--gold-light);">
+                    <input type="radio" name="cat_{{ cat.id }}" value="{{ product.id }}" data-price="{{ product.price }}" class="bundle-radio">
+                    <strong>Select Item</strong>
+                  </div>
+                  {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 145px; object-fit: cover; border-radius: 8px; margin-bottom: 0.6rem;">
+                  {% endif %}
+                  <h3 style="margin: 0.25rem 0;">{{ product.name }}</h3>
+                  <p style="font-size: 0.88rem; color: var(--text-secondary);">{{ product.description|truncatewords:14 }}</p>
+                </div>
+                <div>
+                  <p class="price" style="margin: 0;">₹{{ product.price }}</p>
+                  <small style="color: var(--text-muted);">In stock: {{ product.stock }}</small>
+                </div>
+              </label>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    {% endfor %}
+  </form>
+
+  <script>
+    (function () {
+      const radios = document.querySelectorAll(".bundle-radio");
+      const statusEl = document.getElementById("bundle-status");
+      const subtotalEl = document.getElementById("bundle-subtotal");
+      const discountWrap = document.getElementById("bundle-discount-wrap");
+      const discountEl = document.getElementById("bundle-discount");
+      const totalEl = document.getElementById("bundle-total");
+      const submitBtn = document.getElementById("bundle-submit");
+
+      function updateBundleSummary() {
+        let count = 0, subtotal = 0;
+        radios.forEach((r) => { if (r.checked && r.value !== "") { count += 1; subtotal += parseFloat(r.dataset.price || "0"); } });
+        const unlocked = count >= 3;
+        const discount = unlocked ? subtotal * 0.15 : 0;
+        subtotalEl.textContent = subtotal.toFixed(2);
+        discountEl.textContent = discount.toFixed(2);
+        totalEl.textContent = (subtotal - discount).toFixed(2);
+        if (unlocked) {
+          statusEl.textContent = `✓ Unlocked! ${count} categories selected — 15% Bundle Discount active`;
+          statusEl.style.color = "#6ee7b7";
+          discountWrap.style.display = "inline";
+          submitBtn.disabled = false; submitBtn.style.opacity = "1"; submitBtn.style.cursor = "pointer";
+        } else {
+          statusEl.textContent = `Selected: ${count} / 3 categories (pick ${3 - count} more to unlock 15% OFF)`;
+          statusEl.style.color = "#f3d266";
+          discountWrap.style.display = "none";
+          submitBtn.disabled = true; submitBtn.style.opacity = "0.45"; submitBtn.style.cursor = "not-allowed";
+        }
+      }
+      radios.forEach((r) => r.addEventListener("change", updateBundleSummary));
+    })();
+  </script>
+{% endblock %}

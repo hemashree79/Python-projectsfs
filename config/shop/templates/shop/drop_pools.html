@@ -1,0 +1,113 @@
+﻿{% extends "shop/base.html" %}
+
+{% block title %}Live Price Drops | AURELIA{% endblock %}
+
+{% block content %}
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <div>
+      <h1 style="margin: 0;">Live Group-Buy Price Drop Pools</h1>
+      <p style="margin: 0.25rem 0 0; color: var(--text-secondary);">Join a pool with other shoppers—as more join before the timer expires, the price drops for <strong>everyone</strong>.</p>
+    </div>
+    <a href="{% url 'shop:product_list' %}"><button type="button" class="btn-secondary">← Back to Catalog</button></a>
+  </div>
+
+  {% if drops %}
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      {% for drop in drops %}
+        <div class="card" style="display: grid; grid-template-columns: 240px 1fr; gap: 1.5rem; align-items: center;">
+          <div>
+            {% if drop.product.image %}
+              <a href="{% url 'shop:product_detail' drop.product.id %}">
+                <img src="{{ drop.product.image.url }}" alt="{{ drop.product.name }}" style="width: 100%; height: 185px; object-fit: cover; border-radius: 10px;">
+              </a>
+            {% else %}
+              <div style="background: #1b1b24; height: 185px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">No Image</div>
+            {% endif %}
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <span class="pill pill-gold">{{ drop.current_tier_label }}</span>
+              <span class="drop-countdown pill pill-crimson" data-ends-at="{{ drop.ends_at|date:'c' }}">Calculating...</span>
+            </div>
+
+            <h2 style="margin: 0.55rem 0 0.25rem;"><a href="{% url 'shop:product_detail' drop.product.id %}" style="color: var(--text-primary);">{{ drop.product.name }}</a></h2>
+            <p style="margin: 0 0 0.85rem; color: var(--text-secondary);">{{ drop.product.description|truncatewords:22 }}</p>
+
+            <div style="display: flex; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 1rem;">
+              <div style="padding: 0.55rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-subtle); background: var(--bg-input);">
+                <small style="display: block; color: var(--text-muted);">Tier 1 (1–{{ drop.tier1_min_buyers|add:"-1" }})</small>
+                <strong>₹{{ drop.product.price }}</strong>
+              </div>
+              <div style="padding: 0.55rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-gold); background: var(--bg-input);">
+                <small style="display: block; color: var(--text-muted);">Tier 2 ({{ drop.tier1_min_buyers }}+)</small>
+                <strong style="color: #6ee7b7;">₹{{ drop.tier1_price }}</strong>
+              </div>
+              <div style="padding: 0.55rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-gold); background: var(--bg-input);">
+                <small style="display: block; color: var(--text-muted);">Tier 3 ({{ drop.tier2_min_buyers }}+)</small>
+                <strong style="color: var(--gold-light);">₹{{ drop.tier2_price }}</strong>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 0.95rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                <span><strong>{{ drop.participant_count }}</strong> joined so far</span>
+                <span style="color: var(--gold-light); font-weight: 600;">{{ drop.next_tier_info }}</span>
+              </div>
+              <div style="width: 100%; height: 10px; background: #23232d; border-radius: 999px; overflow: hidden;">
+                <div style="width: {{ drop.progress_percent }}%; height: 100%; background: linear-gradient(90deg, var(--gold-primary), #10b981);"></div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+              <div>
+                <small style="color: var(--text-muted);">Live Pool Price:</small>
+                <span class="price" style="font-size: 1.4rem; margin-left: 0.25rem;">₹{{ drop.current_price }}</span>
+                {% if drop.current_price < drop.product.price %}<del style="color: var(--text-muted); margin-left: 0.35rem;">₹{{ drop.product.price }}</del>{% endif %}
+              </div>
+              {% if user.is_authenticated %}
+                <form method="post" action="{% url 'shop:drop_toggle' drop.id %}" style="margin: 0;">
+                  {% csrf_token %}
+                  {% if drop.id in joined_drop_ids %}
+                    <button type="submit" class="btn-active">✓ Joined Pool (Leave)</button>
+                  {% else %}
+                    <button type="submit">Join Drop Pool</button>
+                  {% endif %}
+                </form>
+                {% if drop.id in joined_drop_ids %}
+                  <form method="post" action="{% url 'shop:buy_now' drop.product.id %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-emerald">Buy Now at ₹{{ drop.current_price }}</button>
+                  </form>
+                {% endif %}
+              {% else %}
+                <a href="{% url 'shop:login' %}?next={{ request.path }}"><button type="button">Log in to Join Pool</button></a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card"><p style="color: var(--text-secondary);">No active Group-Buy Drop Pools right now.</p></div>
+  {% endif %}
+
+  <script>
+    (function () {
+      const timers = document.querySelectorAll(".drop-countdown");
+      function tick() {
+        const now = new Date();
+        timers.forEach((el) => {
+          const diff = new Date(el.dataset.endsAt) - now;
+          if (diff <= 0) { el.textContent = "Pool Ended"; return; }
+          const hrs = Math.floor(diff / 3600000);
+          const mins = Math.floor((diff / 60000) % 60);
+          const secs = Math.floor((diff / 1000) % 60);
+          el.textContent = `Ends in ${hrs}h ${mins}m ${secs}s`;
+        });
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
+{% endblock %}

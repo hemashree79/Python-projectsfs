@@ -1,0 +1,112 @@
+﻿{% extends "shop/base.html" %}
+
+{% block title %}Compare Products | Django Shop{% endblock %}
+
+{% block content %}
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+    <h1 style="margin: 0;">Compare Products</h1>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'shop:product_list' %}"><button type="button" style="background: #475569;">← Back to Shop</button></a>
+      {% if products %}
+        <form method="post" action="{% url 'shop:compare_clear' %}" style="margin: 0;">
+          {% csrf_token %}
+          <button type="submit" class="danger">Clear All</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if products %}
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 160px;">Feature</th>
+            {% for product in products %}
+              <th>
+                <a href="{% url 'shop:product_detail' product.id %}" style="color: #0f172a; text-decoration: none;">
+                  {{ product.name }}
+                </a>
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Image</strong></td>
+            {% for product in products %}
+              <td>
+                {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 120px; height: 90px; object-fit: cover; border-radius: 6px;">
+                {% else %}
+                  <span style="color: #94a3b8;">No image</span>
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td><strong>Category</strong></td>
+            {% for product in products %}
+              <td>{{ product.category.name|default:"—" }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td><strong>Price</strong></td>
+            {% for product in products %}
+              <td class="price">₹{{ product.price }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td><strong>Rating</strong></td>
+            {% for product in products %}
+              <td style="color: #d97706; font-weight: 600;">
+                {% if product.avg_rating %}
+                  ★ {{ product.avg_rating|floatformat:1 }} ({{ product.num_reviews }})
+                {% else %}
+                  <span style="color: #94a3b8; font-weight: 400;">No ratings</span>
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td><strong>Availability</strong></td>
+            {% for product in products %}
+              <td>{{ product.stock }} in stock</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td><strong>Description</strong></td>
+            {% for product in products %}
+              <td>{{ product.description }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td><strong>Actions</strong></td>
+            {% for product in products %}
+              <td>
+                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                  <form method="post" action="{% url 'shop:cart_add' product.id %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" style="width: 100%;">Add to Cart</button>
+                  </form>
+                  <form method="post" action="{% url 'shop:buy_now' product.id %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" style="width: 100%; background: #059669;">Buy Now</button>
+                  </form>
+                  <form method="post" action="{% url 'shop:compare_toggle' product.id %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="danger" style="width: 100%;">Remove</button>
+                  </form>
+                </div>
+              </td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="card">
+      <p>No products selected for comparison yet. Click <strong>Compare</strong> on any product card to add up to 4 items.</p>
+    </div>
+  {% endif %}
+{% endblock %}

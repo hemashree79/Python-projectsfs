@@ -1,0 +1,21 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Order Confirmed | Django Shop{% endblock %}
+
+{% block content %}
+  <div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h1>Order Confirmed!</h1>
+    <p>Thank you, <strong>{{ order.full_name }}</strong>. Your order <strong>#{{ order.id }}</strong> has been placed.</p>
+    <p><strong>Delivery Address:</strong> {{ order.address }}</p>
+
+    <h3>Items Ordered</h3>
+    <ul>
+      {% for item in order.items.all %}
+        <li>{{ item.product.name }} × {{ item.quantity }} — ₹{{ item.get_cost }}</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Total Paid: ₹{{ order.total_amount }}</h3>
+    <p><a href="{% url 'shop:product_list' %}"><button type="button">Continue Shopping</button></a></p>
+  </div>
+{% endblock %}

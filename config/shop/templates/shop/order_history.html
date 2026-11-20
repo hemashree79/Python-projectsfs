@@ -1,0 +1,57 @@
+﻿{% extends "shop/base.html" %}
+
+{% block title %}My Orders | AURELIA{% endblock %}
+
+{% block content %}
+  <h1>My Orders</h1>
+  <p><a href="{% url 'shop:product_list' %}">← Back to catalog</a></p>
+
+  {% if orders %}
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      {% for order in orders %}
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="margin: 0;">
+              Order #{{ order.display_number }}
+              <span class="pill {% if order.status == 'cancelled' %}pill-crimson{% else %}pill-emerald{% endif %}" style="margin-left: 0.45rem;">
+                {{ order.get_status_display }}
+              </span>
+              <span class="pill pill-gold" style="margin-left: 0.35rem;">
+                {{ order.get_payment_status_display }}
+              </span>
+            </h3>
+            <small style="color: var(--text-muted);">{{ order.created_at|date:"M d, Y H:i" }}</small>
+          </div>
+          <p style="margin: 0.55rem 0 0.25rem; color: var(--text-secondary);">
+            <strong style="color: var(--text-primary);">Payment:</strong> {{ order.get_payment_method_display }}
+            {% if order.payment_detail %}— {{ order.payment_detail }}{% endif %}
+            {% if order.transaction_id %}(<code>{{ order.transaction_id }}</code>){% endif %}
+          </p>
+          <p style="margin: 0.25rem 0 0.65rem; color: var(--text-secondary);"><strong style="color: var(--text-primary);">Deliver to:</strong> {{ order.address }}</p>
+          <ul style="color: var(--text-secondary);">
+            {% for item in order.items.all %}
+              <li>{{ item.product.name }} × {{ item.quantity }} — <strong style="color: var(--text-primary);">₹{{ item.get_cost }}</strong></li>
+            {% endfor %}
+          </ul>
+          {% if order.coupon_code %}
+            <p style="margin: 0.25rem 0; color: var(--emerald-text);">Promo <strong>{{ order.coupon_code }}</strong> applied: - ₹{{ order.discount_amount }}</p>
+          {% endif %}
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 0.85rem;">
+            <strong style="font-size: 1.1rem; color: var(--gold-light);">Total: ₹{{ order.total_amount }}</strong>
+            <div style="display: flex; gap: 0.6rem;">
+              <a href="{% url 'shop:order_invoice' order.id %}"><button type="button" class="btn-secondary">View / Print Invoice</button></a>
+              {% if order.status == "pending" or order.status == "confirmed" %}
+                <form method="post" action="{% url 'shop:cancel_order' order.id %}" style="margin: 0;" onsubmit="return confirm('Cancel Order #{{ order.display_number }} and restore item stock?');">
+                  {% csrf_token %}
+                  <button type="submit" class="danger">Cancel Order</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card"><p style="color: var(--text-secondary);">You haven't placed any orders yet.</p></div>
+  {% endif %}
+{% endblock %}

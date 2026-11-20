@@ -1,0 +1,52 @@
+﻿{% extends "shop/base.html" %}
+
+{% block title %}My Wishlist | Django Shop{% endblock %}
+
+{% block content %}
+  <h1>My Wishlist</h1>
+  <p><a href="{% url 'shop:product_list' %}">← Back to products</a></p>
+
+  {% if wishlist_items %}
+    <div class="product-grid">
+      {% for item in wishlist_items %}
+        <article class="card">
+          <div>
+            {% if item.product.image %}
+              <a href="{% url 'shop:product_detail' item.product.id %}">
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 6px; margin-bottom: 0.75rem;">
+              </a>
+            {% endif %}
+            {% if item.product.category %}
+              <small style="color: #2563eb; font-weight: 600;">{{ item.product.category.name }}</small>
+            {% endif %}
+            <h2 style="margin: 0.25rem 0;">
+              <a href="{% url 'shop:product_detail' item.product.id %}" style="color: inherit; text-decoration: none;">
+                {{ item.product.name }}
+              </a>
+            </h2>
+            <p>{{ item.product.description|truncatewords:15 }}</p>
+          </div>
+
+          <div>
+            <p class="price">₹{{ item.product.price }}</p>
+            <p><small>In stock: {{ item.product.stock }}</small></p>
+            <div style="display: flex; gap: 0.5rem;">
+              <form method="post" action="{% url 'shop:cart_add' item.product.id %}" style="margin: 0; flex: 1;">
+                {% csrf_token %}
+                <button type="submit" style="width: 100%;">Move to Cart</button>
+              </form>
+              <form method="post" action="{% url 'shop:wishlist_toggle' item.product.id %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="danger">Remove</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card">
+      <p>Your wishlist is empty. Click <strong>♡ Save</strong> on any product to bookmark it for later!</p>
+    </div>
+  {% endif %}
+{% endblock %}

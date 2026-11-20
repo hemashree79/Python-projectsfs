@@ -1,0 +1,39 @@
+﻿{% extends "shop/base.html" %}
+
+{% block title %}Order Confirmed | AURELIA{% endblock %}
+
+{% block content %}
+  <div class="card" style="max-width: 620px; margin: 0 auto;">
+    <span class="pill pill-emerald" style="width: fit-content; margin-bottom: 0.5rem;">{{ order.get_payment_status_display }}</span>
+    <h1 style="margin: 0.25rem 0;">Order Confirmed!</h1>
+    <p style="color: var(--text-secondary);">
+      Thank you, <strong style="color: var(--text-primary);">{{ order.full_name }}</strong>. Your order
+      <strong style="color: var(--gold-light);">#{{ order.display_number }}</strong> has been placed.
+    </p>
+    <p style="margin: 0.35rem 0; color: var(--text-secondary);">
+      <strong style="color: var(--text-primary);">Payment:</strong> {{ order.get_payment_method_display }}
+      {% if order.payment_detail %}({{ order.payment_detail }}){% endif %}
+    </p>
+    {% if order.transaction_id %}
+      <p style="margin: 0.35rem 0; color: var(--text-secondary);">
+        <strong style="color: var(--text-primary);">Reference ID:</strong> <code>{{ order.transaction_id }}</code>
+      </p>
+    {% endif %}
+    <p style="margin: 0.35rem 0; color: var(--text-secondary);"><strong style="color: var(--text-primary);">Delivery Address:</strong> {{ order.address }}</p>
+
+    <h3>Items Ordered</h3>
+    <ul style="color: var(--text-secondary);">
+      {% for item in order.items.all %}
+        <li>{{ item.product.name }} × {{ item.quantity }} — <strong style="color: var(--text-primary);">₹{{ item.get_cost }}</strong></li>
+      {% endfor %}
+    </ul>
+
+    <h3 style="color: var(--gold-light);">Total Amount: ₹{{ order.total_amount }}</h3>
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="{% url 'shop:product_list' %}"><button type="button">Continue Shopping</button></a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'shop:order_invoice' order.id %}"><button type="button" class="btn-secondary">View Invoice</button></a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

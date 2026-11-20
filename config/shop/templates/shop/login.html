@@ -1,0 +1,15 @@
+﻿{% extends "shop/base.html" %}
+
+{% block title %}Login | Django Shop{% endblock %}
+
+{% block content %}
+  <div class="card" style="max-width: 420px; margin: 2rem auto;">
+    <h1>Login</h1>
+    <form method="post" style="display: flex; flex-direction: column; gap: 0.85rem;">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Log In</button>
+    </form>
+    <p style="margin-top: 1rem;">Don't have an account? <a href="{% url 'shop:register' %}">Register here</a>.</p>
+  </div>
+{% endblock %}

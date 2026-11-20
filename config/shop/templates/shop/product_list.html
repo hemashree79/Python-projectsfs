@@ -1,0 +1,122 @@
+﻿{% extends "shop/base.html" %}
+
+{% block title %}Catalog | AURELIA{% endblock %}
+
+{% block content %}
+  <div class="hero-banner">
+    <div>
+      <span class="pill pill-gold" style="margin-bottom: 0.6rem;">CURATED COLLECTION</span>
+      <h1 style="margin: 0.25rem 0; font-size: 2rem;">Precision Gear &amp; Modern Essentials</h1>
+      <p style="margin: 0; color: var(--text-secondary);">Join live community Drop Pools or build a 3-category kit for instant 15% savings.</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="{% url 'shop:drop_pools' %}"><button type="button">Explore Price Drops</button></a>
+      <a href="{% url 'shop:bundle_builder' %}"><button type="button" class="btn-secondary">Build a Kit</button></a>
+    </div>
+  </div>
+
+  <form method="get" style="display: flex; gap: 0.75rem; margin-bottom: 1.75rem; flex-wrap: wrap;">
+    <input type="text" name="q" value="{{ query }}" placeholder="Search catalog..." style="flex: 1; min-width: 220px;">
+    <select name="category">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+      {% endfor %}
+    </select>
+    <select name="sort">
+      <option value="newest" {% if selected_sort == "newest" %}selected{% endif %}>Sort: Newest First</option>
+      <option value="price_asc" {% if selected_sort == "price_asc" %}selected{% endif %}>Price: Low to High</option>
+      <option value="price_desc" {% if selected_sort == "price_desc" %}selected{% endif %}>Price: High to Low</option>
+      <option value="rating" {% if selected_sort == "rating" %}selected{% endif %}>Highest Rated</option>
+    </select>
+    <button type="submit">Apply</button>
+    {% if query or selected_category or selected_sort != "newest" %}
+      <a href="{% url 'shop:product_list' %}" style="align-self: center; color: var(--text-secondary);">Reset</a>
+    {% endif %}
+  </form>
+
+  <div class="product-grid">
+    {% for product in products %}
+      <article class="card">
+        <div>
+          {% if product.image %}
+            <a href="{% url 'shop:product_detail' product.id %}">
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 190px; object-fit: cover; border-radius: 10px; margin-bottom: 0.85rem;">
+            </a>
+          {% endif %}
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.45rem;">
+            <small style="color: var(--gold-primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.72rem;">
+              {{ product.category.name|default:"Featured" }}
+            </small>
+            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+              {% if product.group_drop and product.group_drop.is_open %}
+                <a href="{% url 'shop:drop_pools' %}"><span class="pill pill-gold">Drop: ₹{{ product.group_drop.current_price }}</span></a>
+              {% endif %}
+              {% if product.stock <= 3 %}
+                <span class="pill pill-crimson">Only {{ product.stock }} left</span>
+              {% endif %}
+            </div>
+          </div>
+          <h2 style="margin: 0 0 0.3rem; font-size: 1.2rem;">
+            <a href="{% url 'shop:product_detail' product.id %}" style="color: var(--text-primary);">{{ product.name }}</a>
+          </h2>
+          <p style="margin: 0 0 0.5rem; font-size: 0.88rem; color: var(--gold-light); font-weight: 600;">
+            {% if product.avg_rating %}★ {{ product.avg_rating|floatformat:1 }} <span style="color: var(--text-muted);">({{ product.num_reviews }})</span>{% else %}<span style="color: var(--text-muted); font-weight: 400;">No ratings yet</span>{% endif %}
+          </p>
+          <p style="color: var(--text-secondary); font-size: 0.92rem; margin: 0 0 1rem;">{{ product.description|truncatewords:15 }}</p>
+        </div>
+
+        <div>
+          <p class="price">₹{{ product.price }}</p>
+          <p style="margin: 0 0 0.85rem; color: var(--text-muted); font-size: 0.82rem;">In stock: {{ product.stock }}</p>
+
+          <div style="display: flex; gap: 0.5rem;">
+            <form method="post" action="{% url 'shop:cart_add' product.id %}" style="margin: 0; flex: 1;">
+              {% csrf_token %}
+              <button type="submit" style="width: 100%;">Add to Cart</button>
+            </form>
+            <form method="post" action="{% url 'shop:buy_now' product.id %}" style="margin: 0; flex: 1;">
+              {% csrf_token %}
+              <button type="submit" class="btn-emerald" style="width: 100%;">Buy Now</button>
+            </form>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+            <form method="post" action="{% url 'shop:compare_toggle' product.id %}" style="margin: 0; flex: 1;">
+              {% csrf_token %}
+              <button type="submit" class="{% if product.id in compare_ids %}btn-active{% else %}btn-secondary{% endif %}" style="width: 100%;">
+                {% if product.id in compare_ids %}✓ Comparing{% else %}+ Compare{% endif %}
+              </button>
+            </form>
+            {% if user.is_authenticated %}
+              <form method="post" action="{% url 'shop:wishlist_toggle' product.id %}" style="margin: 0; flex: 1;">
+                {% csrf_token %}
+                <button type="submit" class="{% if product.id in wishlist_ids %}btn-wish-active{% else %}btn-wish{% endif %}" style="width: 100%;">
+                  {% if product.id in wishlist_ids %}♥ Saved{% else %}♡ Save{% endif %}
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <p style="color: var(--text-secondary);">No products match your search.</p>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.has_other_pages %}
+    <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2.25rem;">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&category={{ selected_category }}&sort={{ selected_sort }}">
+          <button type="button" class="btn-secondary">← Previous</button>
+        </a>
+      {% endif %}
+      <span style="color: var(--text-secondary);">Page <strong style="color: var(--gold-light);">{{ page_obj.number }}</strong> of <strong>{{ page_obj.paginator.num_pages }}</strong></span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&category={{ selected_category }}&sort={{ selected_sort }}">
+          <button type="button" class="btn-secondary">Next →</button>
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}
