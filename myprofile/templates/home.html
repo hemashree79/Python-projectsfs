@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R. Hemashree | Full Stack Developer</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">HEMASHREE<span>.DEV</span></div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#terminal">Terminal</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <p class="badge">// PYTHON & DJANGO FULL STACK DEVELOPER</p>
+                <h1>Hi, I'm <span class="accent">R. Hemashree</span>.</h1>
+                <p class="subtitle">
+                    Computer Science & Engineering student building scalable web applications,
+                    AI-driven platforms, and practical developer tools.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#projects" class="btn-primary">View Projects</a>
+                    <a href="#terminal" class="btn-secondary">Launch Terminal</a>
+                </div>
+            </div>
+
+            <div class="hero-image">
+                <div class="photo-frame">
+                    <img src="{% static 'images/passport.jpeg' %}" alt="R.Hemashree">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="terminal" class="terminal-section">
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="terminal-title">hemashree@django-portfolio: ~</span>
+            </div>
+            <div class="terminal-body" id="terminal-output">
+                <p>Welcome to Hemashree's Interactive Portfolio Terminal v1.0</p>
+                <p>Type <span class="accent">'help'</span> to see available commands.</p>
+            </div>
+            <div class="terminal-input-line">
+                <span class="prompt">guest@hemashree:~$</span>
+                <input type="text" id="terminal-input" placeholder="Type a command (e.g., about, skills, projects, clear)..." autocomplete="off">
+            </div>
+        </div>
+    </section>
+
+    <section id="skills" class="skills-section">
+        <h2 class="section-title">Tech <span class="accent">Stack</span></h2>
+        <div class="skills-grid">
+            <div class="skill-group">
+                <h3>Languages</h3>
+                <div class="skill-tags">
+                    <span>Python</span>
+                    <span>C</span>
+                    <span>SQL</span>
+                    <span>HTML5 / CSS3</span>
+                </div>
+            </div>
+            <div class="skill-group">
+                <h3>Frameworks & Web</h3>
+                <div class="skill-tags">
+                    <span>Django</span>
+                    <span>Flask</span>
+                </div>
+            </div>
+            <div class="skill-group">
+                <h3>Tools & Databases</h3>
+                <div class="skill-tags">
+                    <span>MySQL</span>
+                    <span>Git & GitHub</span>
+                    <span>VS Code / PyCharm</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="projects-section">
+        <h2 class="section-title">Featured <span class="accent">Projects</span></h2>
+        <div class="projects-grid">
+            <div class="project-card">
+                <h3>AI Marketplace Platform</h3>
+                <p>Collaborative AI marketplace platform featuring modular backend services and clean UI workflows.</p>
+                <span class="tech-tag">Python • Web • AI</span>
+            </div>
+            <div class="project-card">
+                <h3>Real-Time Currency Analysis</h3>
+                <p>Full-stack Flask & MySQL web application with live exchange rate API integration, trend analysis, and heatmaps.</p>
+                <span class="tech-tag">Python • Flask • MySQL</span>
+            </div>
+            <div class="project-card">
+                <h3>Python Utility Suite</h3>
+                <p>GUI-based Python toolset for PDF manipulation, CSV analytics, duplicate detection, and file encryption.</p>
+                <span class="tech-tag">Python • Tkinter • Automation</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+        <h2 class="section-title">Let's <span class="accent">Connect</span></h2>
+        <p class="subtitle">Open to internships, full-stack projects, and tech collaborations.</p>
+        <div class="contact-links">
+            <button id="copy-email-btn" class="btn-primary" data-email="hemashree@example.com">Copy Email</button>
+            <a href="https://github.com/hemashree79" target="_blank" class="btn-secondary">GitHub</a>
+            <a href="https://www.linkedin.com/in/r-hemashree-51493b2a4/" target="_blank" class="btn-secondary">LinkedIn</a>
+        </div>
+        <p id="copy-status" class="copy-status"></p>
+    </section>
+
+    <footer>
+        <p>Built with <span class="accent">Django</span> by R. Hemashree &copy; 2026</p>
+    </footer>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
